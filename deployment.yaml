@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fuelcons
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fuelcons
+  template:
+    metadata:
+      labels:
+        app: fuelcons
+    spec:
+      containers:
+        - name: fuelcons
+          image: your-registry/fuelcons:latest
+          imagePullPolicy: IfNotPresent
+          command: ["xvfb-run", "-a", "java", "-jar", "/app/fuelcons.jar"]
