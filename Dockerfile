@@ -4,7 +4,7 @@ WORKDIR /build
 COPY pom.xml ./
 COPY src ./src
 
-RUN mvn -B clean package -DskipTests
+RUN mvn -B clean package -DskipTests -Djavafx.platform=linux
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
