@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller">
+<VBox fx:id="rootContainer" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller">
    <children>
       <HBox alignment="CENTER" prefHeight="74.0" prefWidth="600.0">
          <children>
@@ -28,14 +28,14 @@
                </children>
             </Pane>
             <Pane prefHeight="68.0" prefWidth="214.0" />
-            <MenuButton fx:id="mbLanguage" contentDisplay="CENTER" mnemonicParsing="false" text="Language">
-              <items>
-                <MenuItem fx:id="menuEN" mnemonicParsing="false" onAction="#handleLanguageChange" text="Action 1" />
-                <MenuItem fx:id="menuFR" mnemonicParsing="false" onAction="#handleLanguageChange" text="Action 2" />
-                  <MenuItem fx:id="menuJP" mnemonicParsing="false" onAction="#handleLanguageChange" text="Action 3" />
-                  <MenuItem fx:id="menuIR" mnemonicParsing="false" onAction="#handleLanguageChange" text="Action 4" />
-              </items>
-            </MenuButton>
+             <MenuButton fx:id="mbLanguage" mnemonicParsing="false" text="Language">
+                 <items>
+                     <MenuItem fx:id="menuEN" mnemonicParsing="false" onAction="#handleLanguageChange" text="English" />
+                     <MenuItem fx:id="menuFR" mnemonicParsing="false" onAction="#handleLanguageChange" text="Français" />
+                     <MenuItem fx:id="menuJP" mnemonicParsing="false" onAction="#handleLanguageChange" text="日本語" />
+                     <MenuItem fx:id="menuIR" mnemonicParsing="false" onAction="#handleLanguageChange" text="فارسی" />
+                 </items>
+             </MenuButton>
          </children>
       </HBox>
       <GridPane alignment="CENTER" prefHeight="246.0" prefWidth="600.0">

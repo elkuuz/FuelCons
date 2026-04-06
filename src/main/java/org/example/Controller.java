@@ -2,19 +2,22 @@ package org.example;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import javafx.scene.layout.VBox;
+import org.example.db.CalculationService;
+import org.example.db.LocalizationService;
+
 
 public class Controller {
 
-
-    private ResourceBundle rb;
+    private LocalizationService locService = new LocalizationService();
+    private CalculationService calcService = new CalculationService();
+    private String currentLang = "EN"; // Default language
 
     @FXML
     private Label lblDistance;
@@ -58,44 +61,56 @@ public class Controller {
     @FXML
     private MenuItem menuIR;
 
+    @FXML
+    private VBox rootContainer;
+
 
 
     @FXML
     private void initialize() {
-        setLanguage(Locale.getDefault());
+        setLanguage("EN"); // Default language
     }
-
 
     @FXML
     private void handleLanguageChange(ActionEvent event) {
         MenuItem selectedItem = (MenuItem) event.getSource();
 
         if (selectedItem == menuEN) {
-            setLanguage(Locale.of("en", "US"));
+            setLanguage("EN");
         } else if (selectedItem == menuFR) {
-            setLanguage(Locale.of("fr", "FR"));
+            setLanguage("FR");
         } else if (selectedItem == menuJP) {
-            setLanguage(Locale.of("ja", "JP"));
+            setLanguage("JP");
         } else if (selectedItem == menuIR) {
-            setLanguage(Locale.of("fa", "IR"));
+            setLanguage("IR");
         }
     }
 
-    private void setLanguage(Locale locale) {
-        rb = ResourceBundle.getBundle("messages", locale);
+    private void setLanguage(String langCode) {
+        this.currentLang = langCode;
+        locService.loadStrings(langCode); // Fetch from DB
+        applyLayoutDirection(langCode);
 
-        lblDistance.setText(rb.getString("label.distance"));
-        lblConsumption.setText(rb.getString("label.fuel"));
-        lblPrice.setText(rb.getString("price.label"));
-        btnCalculate.setText(rb.getString("button.calculate"));
-        lblTitle.setText(rb.getString("app.title"));
-        lblResult.setText(rb.getString("result.label"));
+        // Update UI labels from DB
+        lblTitle.setText(locService.getString("title"));
+        lblDistance.setText(locService.getString("lbl_distance"));
+        lblConsumption.setText(locService.getString("lbl_consumption"));
+        lblPrice.setText(locService.getString("lbl_price"));
+        btnCalculate.setText(locService.getString("btn_calculate"));
 
-        mbLanguage.setText(rb.getString("language.menu.title"));
-        menuEN.setText(rb.getString("language.en"));
-        menuFR.setText(rb.getString("language.fr"));
-        menuJP.setText(rb.getString("language.ja"));
-        menuIR.setText(rb.getString("language.fa"));
+        // Result and Menu text
+        lblResult.setText(locService.getString("res_total_fuel"));
+        mbLanguage.setText(langCode);
+    }
+
+    private void applyLayoutDirection(String langCode) {
+        rootContainer.setNodeOrientation(isRtlLanguage(langCode)
+                ? NodeOrientation.RIGHT_TO_LEFT
+                : NodeOrientation.LEFT_TO_RIGHT);
+    }
+
+    private boolean isRtlLanguage(String langCode) {
+        return "IR".equalsIgnoreCase(langCode);
     }
 
     @FXML
@@ -105,17 +120,27 @@ public class Controller {
             double consumption = Double.parseDouble(txtConsumption.getText());
             double price = Double.parseDouble(txtPrice.getText());
 
+            // Validate positive numbers
             if (distance < 0 || consumption < 0 || price < 0) {
-                lblResult.setText(rb.getString("error.negative.input"));
+                lblResult.setText(locService.getString("msg_error_input"));
                 return;
             }
 
-            double totalFuel = (consumption/100) * distance;
+            // Calculation logic
+            double totalFuel = (consumption / 100) * distance;
             double totalCost = totalFuel * price;
 
-            lblResult.setText(MessageFormat.format(rb.getString("result.label"), totalCost));
+            // Display results
+            String result = String.format("%s %.2f | %s %.2f",
+                    locService.getString("res_total_fuel"), totalFuel,
+                    locService.getString("res_total_cost"), totalCost);
+            lblResult.setText(result);
+
+            // SAVE TO DATABASE
+            calcService.saveCalculation(distance, consumption, price, totalFuel, totalCost, currentLang);
+
         } catch (NumberFormatException e) {
-            lblResult.setText(rb.getString("error.invalidInput"));
+            lblResult.setText(locService.getString("msg_error_input"));
         }
     }
 }
