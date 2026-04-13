@@ -92,21 +92,37 @@ public class Controller {
         applyLayoutDirection(langCode);
 
         // Update UI labels from DB
-        lblTitle.setText(locService.getString("title"));
-        lblDistance.setText(locService.getString("lbl_distance"));
-        lblConsumption.setText(locService.getString("lbl_consumption"));
-        lblPrice.setText(locService.getString("lbl_price"));
-        btnCalculate.setText(locService.getString("btn_calculate"));
+        if (lblTitle != null) {
+            lblTitle.setText(locService.getString("title"));
+        }
+        if (lblDistance != null) {
+            lblDistance.setText(locService.getString("lbl_distance"));
+        }
+        if (lblConsumption != null) {
+            lblConsumption.setText(locService.getString("lbl_consumption"));
+        }
+        if (lblPrice != null) {
+            lblPrice.setText(locService.getString("lbl_price"));
+        }
+        if (btnCalculate != null) {
+            btnCalculate.setText(locService.getString("btn_calculate"));
+        }
 
         // Result and Menu text
-        lblResult.setText(locService.getString("res_total_fuel"));
-        mbLanguage.setText(langCode);
+        if (lblResult != null) {
+            lblResult.setText(locService.getString("res_total_fuel"));
+        }
+        if (mbLanguage != null) {
+            mbLanguage.setText(langCode);
+        }
     }
 
     private void applyLayoutDirection(String langCode) {
-        rootContainer.setNodeOrientation(isRtlLanguage(langCode)
-                ? NodeOrientation.RIGHT_TO_LEFT
-                : NodeOrientation.LEFT_TO_RIGHT);
+        if (rootContainer != null) {
+            rootContainer.setNodeOrientation(isRtlLanguage(langCode)
+                    ? NodeOrientation.RIGHT_TO_LEFT
+                    : NodeOrientation.LEFT_TO_RIGHT);
+        }
     }
 
     private boolean isRtlLanguage(String langCode) {
