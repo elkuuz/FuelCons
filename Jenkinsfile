@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'fuelcons'
-        IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_NAMESPACE = 'elkuuz'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
         PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
@@ -58,7 +57,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
             }
         }
 
@@ -68,10 +67,11 @@ pipeline {
                     sh '''#!/bin/zsh
                         set -e
                         DOCKERHUB_REPOSITORY="${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}"
+                        echo "Pushing tags: ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER} and ${DOCKERHUB_REPOSITORY}:latest"
                         echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                        docker tag "${IMAGE_NAME}:${IMAGE_TAG}" "${DOCKERHUB_REPOSITORY}:${IMAGE_TAG}"
-                        docker tag "${IMAGE_NAME}:${IMAGE_TAG}" "${DOCKERHUB_REPOSITORY}:latest"
-                        docker push "${DOCKERHUB_REPOSITORY}:${IMAGE_TAG}"
+                        docker tag "${IMAGE_NAME}:${BUILD_NUMBER}" "${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}"
+                        docker tag "${IMAGE_NAME}:${BUILD_NUMBER}" "${DOCKERHUB_REPOSITORY}:latest"
+                        docker push "${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}"
                         docker push "${DOCKERHUB_REPOSITORY}:latest"
                         docker logout
                     '''
@@ -85,7 +85,7 @@ pipeline {
             archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
         }
         success {
-            echo "Build completed. Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "Build completed. Docker image: ${IMAGE_NAME}:${BUILD_NUMBER}"
         }
     }
 }
