@@ -4,6 +4,8 @@ pipeline {
     environment {
         IMAGE_NAME = 'fuelcons'
         IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKERHUB_NAMESPACE = 'elkuuz'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
         PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
         SONARQUBE_SERVER = 'SonarQubeServer'
         SONAR_PROJECT_KEY = 'Fuel_Cons'
@@ -57,6 +59,23 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+            }
+        }
+
+        stage('Push Docker Hub Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_TOKEN')]) {
+                    sh '''#!/bin/zsh
+                        set -e
+                        DOCKERHUB_REPOSITORY="${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}"
+                        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                        docker tag "${IMAGE_NAME}:${IMAGE_TAG}" "${DOCKERHUB_REPOSITORY}:${IMAGE_TAG}"
+                        docker tag "${IMAGE_NAME}:${IMAGE_TAG}" "${DOCKERHUB_REPOSITORY}:latest"
+                        docker push "${DOCKERHUB_REPOSITORY}:${IMAGE_TAG}"
+                        docker push "${DOCKERHUB_REPOSITORY}:latest"
+                        docker logout
+                    '''
+                }
             }
         }
     }
